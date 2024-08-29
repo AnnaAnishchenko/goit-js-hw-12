@@ -16,3 +16,92 @@
 @import url('./badges.css');
 @import url('./back-link.css');
 @import url('./footer.css');
+
+.container {
+  width: 1200px;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-form {
+  width: 600px;
+  display: flex;
+  margin: 0 auto;
+  margin-bottom: 40px;
+}
+
+.search-input {
+  font-size: 18px;
+  flex-grow: 1;
+  height: 40px;
+  padding-left: 15px;
+  border: 1px solid #303030;
+}
+
+.search-btn {
+  font-size: 14px;
+  padding: 10px 20px;
+  background-color: #2ecc71;
+  color: #ffffff;
+  border: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.gallery-card {
+  width: calc((100% - 60px) / 3);
+}
+
+.gallery-img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+
+.info {
+  display: flex;
+  flex-wrap: nowrap;
+  width: calc((100% - 20px) / 4);
+  height: 48px;
+  padding: 10px;
+  text-align: center;
+}
+.info p {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin: 0;
+  font-size: 16px;
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 80px;
+  height: 80px;
+  animation: spin 2s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
