@@ -18,6 +18,7 @@ const loadMoreBtnEl = document.querySelector('.js-load-more');
 let currentPage = 1;
 let searchedValue = '';
 let cardHeight = 0;
+let totalHits = 0;
 
 // Створюємо екземпляр SimpleLightbox
 let lightbox = new SimpleLightbox('.js-gallery a', {
@@ -130,6 +131,10 @@ const onLoadMoreBtnClick = async event => {
 
     if (currentPage === response.data.totalHits) {
       loadMoreBtnEl.classList.add('is-hidden');
+      iziToast.info({
+        title: 'Info',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
     }
   } catch (err) {
     iziToast.error({
