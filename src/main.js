@@ -3,19 +3,21 @@
 import { createGalleryCardTemplate } from './js/render-functions.js';
 import { fetchPhotos } from './js/pixabay-api.js';
 
-// Описаний у документації
 import iziToast from 'izitoast';
-// Додатковий імпорт стилів
 import 'izitoast/dist/css/iziToast.min.css';
 
-// Описаний у документації
 import SimpleLightbox from 'simplelightbox';
-// Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const searchFormEl = document.querySelector('.js-search-form');
 const galleryEl = document.querySelector('.js-gallery');
 const loaderEl = document.querySelector('.js-loader');
+const loadMoreBtnEl = document.querySelector('.js-load-more');
+
+// початкова сторінка
+let currentPage = 1;
+let searchedValue = '';
+let cardHeight = 0;
 
 // Створюємо екземпляр SimpleLightbox
 let lightbox = new SimpleLightbox('.js-gallery a', {
@@ -37,6 +39,8 @@ const onSearchFormSubmit = async event => {
   // відміна дії за замовчуванням
   event.preventDefault();
 
+  currentPage = 1;
+
   //значення елемента форми
   const searchedValue = searchFormEl.elements.user_query.value.trim();
 
@@ -50,12 +54,13 @@ const onSearchFormSubmit = async event => {
   // Очищення галереї перед новим пошуком
   galleryEl.innerHTML = '';
 
+  loadMoreBtnEl.classList.add('is-hidden');
   // викликаємо завантажувач
   showLoader();
 
   try {
     // Запит на сервер
-    const response = await fetchPhotos(searchedValue);
+    const response = await fetchPhotos(searchedValue, currentPage);
     console.log(response);
 
     // Перевірка на відсутність результатів
@@ -77,6 +82,17 @@ const onSearchFormSubmit = async event => {
 
     // Додаємо в розмітку HTML
     galleryEl.innerHTML = galleryCardsTemplate;
+    lightbox.refresh();
+
+    const galleryCardEl = galleryEl.querySelector('li');
+
+    cardHeight = galleryCardEl
+      ? galleryCardEl.getBoundingClientRect().height
+      : 0;
+
+    if (response.data.totalHits > currentPage * 15) {
+      loadMoreBtnEl.classList.remove('is-hidden');
+    }
 
     // Оновлюємо галерею SimpleLightbox
     lightbox.refresh();
@@ -92,4 +108,38 @@ const onSearchFormSubmit = async event => {
   }
 };
 
+// завантаження
+const onLoadMoreBtnClick = async event => {
+  currentPage++;
+  showLoader();
+
+  try {
+    const response = await fetchPhotos(searchedValue, currentPage);
+
+    const galleryCardsTemplate = response.data.hits
+      .map(imgDetails => createGalleryCardTemplate(imgDetails))
+      .join('');
+
+    galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate);
+    lightbox.refresh();
+
+    scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+
+    if (currentPage === response.data.totalHits) {
+      loadMoreBtnEl.classList.add('is-hidden');
+    }
+  } catch (err) {
+    iziToast.error({
+      title: 'Error',
+      message: `An error occurred: ${err.message}`,
+    });
+  } finally {
+    hideLoader();
+  }
+};
+
 searchFormEl.addEventListener('submit', onSearchFormSubmit);
+loadMoreBtnEl.addEventListener('click', onLoadMoreBtnClick);
