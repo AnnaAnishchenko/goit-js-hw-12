@@ -13,9 +13,6 @@ import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-// бібліотека axios
-import axios, { isCancel, AxiosError } from 'axios';
-
 const searchFormEl = document.querySelector('.js-search-form');
 const galleryEl = document.querySelector('.js-gallery');
 const loaderEl = document.querySelector('.js-loader');
@@ -36,63 +33,63 @@ const hideLoader = () => {
   loaderEl.style.display = 'none';
 };
 
-const onSearchFormSubmit = event => {
+const onSearchFormSubmit = async event => {
   // відміна дії за замовчуванням
   event.preventDefault();
 
   //значення елемента форми
   const searchedValue = searchFormEl.elements.user_query.value.trim();
 
-  // Перевірка на порожній запит
   if (!searchedValue) {
-    iziToast.error({ title: 'Error', message: 'Please enter a search query!' });
+    iziToast.error({
+      title: 'Error',
+      message: 'Please enter a search query!',
+    });
     return;
   }
+  // Очищення галереї перед новим пошуком
+  galleryEl.innerHTML = '';
 
   // викликаємо завантажувач
   showLoader();
 
-  // Запит на сервер
-  fetchPhotos(searchedValue)
-    // отримуємо дані
-    .then(data => {
-      // Перевірка на відсутність результатів
-      if (data.hits.length === 0) {
-        iziToast.warning({
-          title: 'Warning',
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-        });
+  try {
+    // Запит на сервер
+    const response = await fetchPhotos(searchedValue);
+    console.log(response);
 
-        // Очищення галереї перед новим пошуком
-        galleryEl.innerHTML = '';
-        searchFormEl.reset();
-
-        return;
-      }
-
-      // Перебираємо масив, додаємо всі елементи
-      const galleryCardsTemplate = data.hits
-        .map(imgDetails => createGalleryCardTemplate(imgDetails))
-        .join('');
-
-      // Додаємо в розмітку HTML
-      galleryEl.innerHTML = galleryCardsTemplate;
-
-      // Оновлюємо галерею SimpleLightbox
-      lightbox.refresh();
-    })
-    // ловимо помилку
-    .catch(err => {
-      iziToast.error({
-        title: 'Error',
-        message: `An error occurred: ${err.message}`,
+    // Перевірка на відсутність результатів
+    if (response.data.hits.length === 0) {
+      iziToast.warning({
+        title: 'Warning',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
       });
-    })
-    .finally(() => {
-      // Приховуємо завантажувач після завершення запиту
-      hideLoader();
+
+      searchFormEl.reset();
+      return;
+    }
+
+    // Перебираємо масив, додаємо всі елементи
+    const galleryCardsTemplate = response.data.hits
+      .map(imgDetails => createGalleryCardTemplate(imgDetails))
+      .join('');
+
+    // Додаємо в розмітку HTML
+    galleryEl.innerHTML = galleryCardsTemplate;
+
+    // Оновлюємо галерею SimpleLightbox
+    lightbox.refresh();
+  } catch (err) {
+    console.log(err);
+    iziToast.error({
+      title: 'Error',
+      message: `An error occurred: ${err.message}`,
     });
+  } finally {
+    // Приховуємо завантажувач після завершення запиту
+    hideLoader();
+  }
 };
 
 searchFormEl.addEventListener('submit', onSearchFormSubmit);
