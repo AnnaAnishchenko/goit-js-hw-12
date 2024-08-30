@@ -91,7 +91,7 @@ const onSearchFormSubmit = async event => {
     const galleryCardEl = galleryEl.querySelector('li');
 
     // Використання getBoundingClientRect для отримання висоти
-    cardHeight = galleryCardEl.querySelector('li')
+    cardHeight = galleryCardEl
       ? galleryCardEl.getBoundingClientRect().height
       : 0;
 
@@ -136,7 +136,7 @@ const onLoadMoreBtnClick = async event => {
     // розрахунок загальної кількості сторінок
     const totalPages = Math.ceil(totalHits / 29);
 
-    if (currentPage >= totalPage) {
+    if (currentPage >= totalPages) {
       loadMoreBtnEl.classList.add('is-hidden');
       iziToast.info({
         title: 'Info',
