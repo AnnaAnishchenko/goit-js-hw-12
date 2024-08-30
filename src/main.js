@@ -43,7 +43,7 @@ const onSearchFormSubmit = async event => {
   currentPage = 1;
 
   //значення елемента форми
-  const searchedValue = searchFormEl.elements.user_query.value.trim();
+  searchedValue = searchFormEl.elements.user_query.value.trim();
 
   if (!searchedValue) {
     iziToast.error({
