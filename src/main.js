@@ -83,10 +83,14 @@ const onSearchFormSubmit = async event => {
 
     // Додаємо в розмітку HTML
     galleryEl.innerHTML = galleryCardsTemplate;
+
+    // Оновлюємо галерею SimpleLightbox
     lightbox.refresh();
 
+    // Отримуємо висоту першої карточки галереї
     const galleryCardEl = galleryEl.querySelector('li');
 
+    // Використання getBoundingClientRect для отримання висоти
     cardHeight = galleryCardEl
       ? galleryCardEl.getBoundingClientRect().height
       : 0;
@@ -94,9 +98,6 @@ const onSearchFormSubmit = async event => {
     if (response.data.totalHits > currentPage * 15) {
       loadMoreBtnEl.classList.remove('is-hidden');
     }
-
-    // Оновлюємо галерею SimpleLightbox
-    lightbox.refresh();
   } catch (err) {
     console.log(err);
     iziToast.error({
@@ -124,6 +125,7 @@ const onLoadMoreBtnClick = async event => {
     galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate);
     lightbox.refresh();
 
+    // Прокручуємо сторінку на дві висоти карточки галереї
     scrollBy({
       top: cardHeight * 2,
       behavior: 'smooth',
