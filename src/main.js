@@ -61,7 +61,7 @@ const onSearchFormSubmit = async event => {
 
   try {
     // Запит на сервер
-    const response = await fetchPhotos(searchedValue, currentPage);
+    const response = await fetchPhotos(searchedValue, currentPage, 29);
     console.log(response);
 
     // Перевірка на відсутність результатів
@@ -91,11 +91,13 @@ const onSearchFormSubmit = async event => {
     const galleryCardEl = galleryEl.querySelector('li');
 
     // Використання getBoundingClientRect для отримання висоти
-    cardHeight = galleryCardEl
+    cardHeight = galleryCardEl.querySelector('li')
       ? galleryCardEl.getBoundingClientRect().height
       : 0;
 
-    if (response.data.totalHits > currentPage * 15) {
+    // зберігаємо загальну кількість результатів
+    totalHits = response.data.totalHits;
+    if (totalHits > currentPage * 29) {
       loadMoreBtnEl.classList.remove('is-hidden');
     }
   } catch (err) {
@@ -116,7 +118,7 @@ const onLoadMoreBtnClick = async event => {
   showLoader();
 
   try {
-    const response = await fetchPhotos(searchedValue, currentPage);
+    const response = await fetchPhotos(searchedValue, currentPage, 29);
 
     const galleryCardsTemplate = response.data.hits
       .map(imgDetails => createGalleryCardTemplate(imgDetails))
@@ -131,7 +133,10 @@ const onLoadMoreBtnClick = async event => {
       behavior: 'smooth',
     });
 
-    if (currentPage === response.data.totalHits) {
+    // розрахунок загальної кількості сторінок
+    const totalPages = Math.ceil(totalHits / 29);
+
+    if (currentPage >= totalPage) {
       loadMoreBtnEl.classList.add('is-hidden');
       iziToast.info({
         title: 'Info',
